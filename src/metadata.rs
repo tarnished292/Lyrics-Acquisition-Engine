@@ -1,6 +1,7 @@
 use std::path::PathBuf;
-
-use id3::{Tag, TagLike};
+use lofty::file::TaggedFileExt;
+use lofty::probe::Probe;
+use lofty::tag::Accessor;
 
 pub struct SongMetadata {
     pub path: PathBuf,
@@ -9,10 +10,9 @@ pub struct SongMetadata {
     pub album: Option<String>,
 }
 
-pub fn get_metadata(path: &PathBuf) -> Option<SongMetadata>{
-    let Ok(tag) = Tag::read_from_path(&path) else {
-        return None;
-    };
+pub fn get_metadata(path: &PathBuf) -> Option<SongMetadata> {
+    let tagged_file = Probe::open(path).ok()?.read().ok()?;
+    let tag = tagged_file.primary_tag().or_else(|| tagged_file.first_tag())?;
 
     Some(SongMetadata {
         path: path.clone(),

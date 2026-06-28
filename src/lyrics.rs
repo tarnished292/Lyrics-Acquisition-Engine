@@ -20,7 +20,7 @@ pub async fn fetch_lyrics(song: &SongMetadata) -> Option<String> {
     //         .unwrap()
     // });
     //
-
+    
     let client = CLIENT.get_or_init(reqwest::Client::new);
 
     let response = client
