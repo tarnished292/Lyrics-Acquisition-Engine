@@ -1,9 +1,27 @@
-use reqwest;
+use std::sync::OnceLock;
 
 use crate::metadata::SongMetadata;
+use reqwest;
+use serde::Deserialize;
+
+#[derive(Deserialize)]
+struct LyricsResponse {
+    #[serde(rename = "syncedLyrics")]
+    synced_lyrics: String,
+}
+
+static CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
 
 pub async fn fetch_lyrics(song: &SongMetadata) -> Option<String> {
-    let client = reqwest::Client::new();
+    // let client = CLIENT.get_or_init(|| {
+    //     reqwest::Client::builder()
+    //         .timeout(std::time::Duration::from_secs(5))
+    //         .build()
+    //         .unwrap()
+    // });
+    //
+
+    let client = CLIENT.get_or_init(reqwest::Client::new);
 
     let response = client
         .get("https://lrclib.net/api/get")
@@ -16,9 +34,7 @@ pub async fn fetch_lyrics(song: &SongMetadata) -> Option<String> {
         .await
         .ok()?;
 
-    let body = response.text().await.ok()?;
+    let lyrics = response.json::<LyricsResponse>().await.ok()?;
 
-    println!("{}", body);
-
-    None
+    Some(lyrics.synced_lyrics)
 }
