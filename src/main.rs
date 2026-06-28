@@ -1,4 +1,4 @@
-use lyrics_acquisition_engine::scan_music;
+use lyrics_acquisition_engine::{scan_music};
 
 fn main() {
 
@@ -10,5 +10,9 @@ fn main() {
     
     
     let songs = scan_music(&dir);
-    println!("{:?}", songs)
+
+    for m in songs{
+        println!("Title: {:?} Artist: {:?} Album: {:?}", m.title, m.artist, m.album);
+    }
+
 }
